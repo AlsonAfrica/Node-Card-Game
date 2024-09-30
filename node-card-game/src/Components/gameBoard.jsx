@@ -1,112 +1,97 @@
-// src/components/GameBoard.js
 import React, { useState, useEffect } from 'react';
 import Card from './card';
-import "../Styles/gameBoard.css"
+import "../Styles/gameBoard.css";
+import Modal from './winPopup';
 
 const GameBoard = () => {
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
-  const [moves, setMoves] = useState(0);
-  const [gameWon, setGameWon] = useState(false);
-  const [isChecking, setIsChecking] = useState(false);
+  const [matchedPairs, setMatchedPairs] = useState(0);
+  const [showModal, setShowModal] = useState(false);
 
-  // Fetch and initialize the cards with their content hidden when the component mounts
+  // Function to fetch cards
+  const fetchCards = async () => {
+    const res = await fetch('http://localhost:5000/api/cards');
+    const data = await res.json();
+    setCards(data.map(card => ({ ...card, isMatched: false })));
+  };
+
+  // Fetch cards on component mount
   useEffect(() => {
-    fetch('http://localhost:5000/api/cards')
-      .then((res) => res.json())
-      .then((data) => {
-        // Initialize cards with flipped state set to false (hidden)
-        const initializedCards = data.cards.map((card) => ({
-          ...card,
-          flipped: false,
-        }));
-        setCards(initializedCards);
-        setMoves(data.moves);
-      });
+    fetchCards();
   }, []);
 
   // Handle card click
-  const handleCardClick = (clickedCard) => {
-    if (isChecking || flippedCards.length === 2 || flippedCards.includes(clickedCard.id) || clickedCard.flipped) {
-      return;
-    }
-
-    const newFlippedCards = [...flippedCards, clickedCard.id];
-    setFlippedCards(newFlippedCards);
-
-    if (newFlippedCards.length === 2) {
-      setIsChecking(true);
-
-      const [firstCardId, secondCardId] = newFlippedCards;
-
-      fetch('http://localhost:5000/api/check-match', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ firstCardId, secondCardId }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setMoves(data.moves);
-          if (data.match) {
-            setCards((prevCards) =>
-              prevCards.map((card) =>
-                card.id === firstCardId || card.id === secondCardId ? { ...card, flipped: true } : card
-              )
-            );
-            if (data.gameWon) {
-              setGameWon(true);
-            }
-          } else {
-            setTimeout(() => {
-              setCards((prevCards) =>
-                prevCards.map((card) =>
-                  card.id === firstCardId || card.id === secondCardId ? { ...card, flipped: false } : card
-                )
-              );
-            }, 1000);
-          }
-          setFlippedCards([]);
-          setIsChecking(false);
-        });
-    }
+  const handleClick = (card) => {
+    if (flippedCards.length === 2 || card.isMatched || flippedCards.includes(card)) return;
+    setFlippedCards(prev => [...prev, card]);
   };
 
+  // Check for matching cards
+  useEffect(() => {
+    if (flippedCards.length === 2) {
+      const [firstCard, secondCard] = flippedCards;
+      if (firstCard.value === secondCard.value) {
+        setCards(prev =>
+          prev.map(card =>
+            card.value === firstCard.value ? { ...card, isMatched: true } : card
+          )
+        );
+        setMatchedPairs(prev => prev + 1);
+      }
+      setTimeout(() => setFlippedCards([]), 1000);
+    }
+  }, [flippedCards]);
+
+  // Reset the game
   const resetGame = () => {
-    fetch('http://localhost:5000/api/reset', {
-      method: 'POST',
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        const resetCards = data.cards.map((card) => ({
-          ...card,
-          flipped: false, // Make sure to reset all cards to their hidden state
-        }));
-        setCards(resetCards);
-        setMoves(0);
-        setFlippedCards([]);
-        setGameWon(false);
-      });
+    setFlippedCards([]);
+    setMatchedPairs(0);
+    fetchCards(); // Fetch new cards to reshuffle the deck
   };
+
+  useEffect(()=>{
+    if(matchedPairs === 18){
+      setShowModal(true);
+    }
+  }, [matchedPairs]);
+
+  const handleCloseModal = () =>{
+    setShowModal(false);
+    resetGame();
+  }
 
   return (
-    <div>
-      <div className="game-info">
-        <h2>Moves: {moves}</h2>
-        <button onClick={resetGame}>Reset Game</button>
-        {gameWon && <h2>Congratulations, You Won!</h2>}
+    <div className="game-container">
+      {/* User Panel at the Top */}
+      <div className="user-panel">
+        <div className="game-info">
+          <h2>Card Matching Game</h2>
+          <p>Score: {matchedPairs} / 18</p>
+        </div>
+        <div className="user-actions">
+          <button onClick={resetGame}>Reset Game</button>
+          <div className="user-image">
+            <img src="/default-user.png" alt="User" className="user-img" />
+          </div>
+        </div>
       </div>
-      <div className="grid-container">
-        {cards.map((card) => (
+
+      {/* Game Board */}
+      <div className="game-board">
+        {cards.map(card => (
           <Card
             key={card.id}
             card={card}
-            onClick={handleCardClick}
-            isFlipped={flippedCards.includes(card.id) || card.flipped}
+            handleClick={handleClick}
+            isFlipped={flippedCards.includes(card)}
+            isMatched={card.isMatched}
           />
         ))}
       </div>
+
+      {/* Game Win Message */}
+      {showModal && <Modal message="You Won The Game!" onClose={handleCloseModal}/>}
     </div>
   );
 };

@@ -1,69 +1,53 @@
-// index.js
+// server.js
 const express = require('express');
 const cors = require('cors');
-
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-let cards = [];
-let matchedCards = [];
-let moves = 0;
+// Define your card data with images
+const cardImages = [
+  { value: 1, image: '/images/card1.png' },
+  { value: 2, image: '/images/card2.png' },
+  { value: 3, image: '/images/card3.png' },
+  { value: 4, image: '/images/card4.png' },
+  { value: 5, image: '/images/card5.png' },
+  { value: 6, image: '/images/card6.png' },
+  { value: 7, image: '/images/card7.png' },
+  { value: 8, image: '/images/card8.png' },
+  { value: 9, image: '/images/card9.png' },
+  { value: 10, image: '/images/card10.png' },
+  { value: 11, image: '/images/card11.png' },
+  { value: 12, image: '/images/card12.png' },
+  { value: 13, image: '/images/card13.png' },
+  { value: 14, image: '/images/card14.png' },
+  { value: 15, image: '/images/card15.png' },
+  { value: 16, image: '/images/card16.png' },
+  { value: 17, image: '/images/card17.png' },
+  { value: 18, image: '/images/card18.png' }
+];
 
-// Shuffle and generate card deck
-const generateCards = () => {
-  const cardValues = Array.from({ length: 18 }, (_, i) => i + 1);
-  cards = [...cardValues, ...cardValues]
-    .sort(() => Math.random() - 0.5)
-    .map((value, index) => ({ id: index, value, flipped: false }));
-  matchedCards = [];
-  moves = 0;
-};
-
-// Initialize cards
-generateCards();
-
-// Get shuffled cards
+// Example route to get game data
 app.get('/api/cards', (req, res) => {
-  res.json({ cards, moves });
+  // Create an array of card values (18 pairs) and shuffle them
+  const values = cardImages.map(card => card.value).flat();
+  const cards = [...values, ...values].sort(() => Math.random() - 0.5);
+
+  // Map to include image data
+  const shuffledCards = cards.map(value => {
+    const cardData = cardImages.find(card => card.value === value);
+    return {
+      id: Math.random().toString(36).substr(2, 9), // Generate a random ID
+      value,
+      image: cardData.image
+    };
+  });
+
+  res.json(shuffledCards);
 });
 
-// Check if two cards match
-app.post('/api/check-match', (req, res) => {
-  const { firstCardId, secondCardId } = req.body;
-
-  const firstCard = cards.find(card => card.id === firstCardId);
-  const secondCard = cards.find(card => card.id === secondCardId);
-
-  if (!firstCard || !secondCard || firstCard.flipped || secondCard.flipped) {
-    return res.status(400).json({ error: 'Invalid cards selected' });
-  }
-
-  moves++;
-
-  if (firstCard.value === secondCard.value) {
-    // Mark as matched
-    firstCard.flipped = true;
-    secondCard.flipped = true;
-    matchedCards.push(firstCard.id, secondCard.id);
-
-    // Check if game is won
-    if (matchedCards.length === cards.length) {
-      return res.json({ match: true, gameWon: true, moves });
-    }
-    return res.json({ match: true, gameWon: false, moves });
-  }
-
-  return res.json({ match: false, moves });
-});
-
-// Reset the game
-app.post('/api/reset', (req, res) => {
-  generateCards();
-  res.json({ message: 'Game reset', cards, moves });
-});
-
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });

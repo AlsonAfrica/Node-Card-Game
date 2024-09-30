@@ -1,71 +1,45 @@
-/* src/components/Card.css */
 .card {
-  width: 100px;
-  height: 100px;
-  display: inline-block;
-  margin: 10px;
-  cursor: pointer;
-  position: relative;
+  width: 100px; /* Adjust based on your design */
+  height: 100px; /* Adjust based on your design */
+  perspective: 1000px; /* For 3D effect */
 }
 
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.card.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-front,
 .card-back {
-  background-color: #ccc;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 24px;
-  color: white;
-}
-
-.card-front {
-  background-color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  color: black;
-}
-
-/* src/components/Card.css */
-
-/* Style for the card */
-.card {
-  width: 100px;    /* Card width */
-  height: 100px;   /* Card height */
-  position: relative;
-  cursor: pointer;
-  border: 2px solid #000; /* Add a border to make the card visible */
+  font-size: 24px; /* Change if needed */
+  border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: #f9f9f9;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  color: #000;
-  transition: transform 0.4s; /* Add smooth flipping effect */
+  background-color: #f4f4f4; /* Front side color */
 }
 
-/* Card back design */
 .card-back {
-  background-color: #ccc;
+  transform: rotateY(180deg);
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 36px;
-  color: white;
-  width: 100%;
-  height: 100%;
 }
 
-/* Card front design */
-.card-front {
-  background-color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 24px;
-  color: black;
-  width: 100%;
-  height: 100%;
+.card-image {
+  max-width: 90%; /* Adjust as necessary */
+  max-height: 90%; /* Adjust as necessary */
+  border-radius: 8px; /* Optional for rounded corners */
 }
-
