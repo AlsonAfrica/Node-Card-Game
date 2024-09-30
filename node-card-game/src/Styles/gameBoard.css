@@ -1,0 +1,25 @@
+/* src/components/GameBoard.css */
+
+/* Define the grid for 6x6 cards */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(6, 100px); /* 6 columns, 100px width each */
+  grid-template-rows: repeat(6, 100px);    /* 6 rows, 100px height each */
+  gap: 10px; /* Space between cards */
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+}
