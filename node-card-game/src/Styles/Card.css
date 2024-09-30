@@ -1,3 +1,4 @@
+/* src/Styles/Card.css */
 .card {
   width: 100px; /* Adjust based on your design */
   height: 100px; /* Adjust based on your design */
@@ -33,6 +34,7 @@
 
 .card-back {
   transform: rotateY(180deg);
+  background-color: #fff; /* Optional: Different color for the back */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -42,4 +44,10 @@
   max-width: 90%; /* Adjust as necessary */
   max-height: 90%; /* Adjust as necessary */
   border-radius: 8px; /* Optional for rounded corners */
+}
+
+.card-number {
+  font-size: 24px; /* Adjust size as needed */
+  color: #333; /* Optional: Change text color */
+  font-weight: bold; /* Optional: Make number bold */
 }

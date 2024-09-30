@@ -12,9 +12,11 @@ const Card = ({ card, handleClick, isFlipped, isMatched }) => {
   return (
     <div className={`card ${isFlipped || isMatched ? 'flipped' : ''}`} onClick={handleCardClick}>
       <div className="card-inner">
-        <div className="card-front">{card.value}</div>
+        <div className="card-front">
+          <img src={card.image}  className="card-image" />
+        </div>
         <div className="card-back">
-          <img src={card.image} alt={card.value} className="card-image" />
+          <span className="card-number">{card.value}</span>
         </div>
       </div>
     </div>
@@ -22,7 +24,6 @@ const Card = ({ card, handleClick, isFlipped, isMatched }) => {
 };
 
 export default Card;
-
 
 
 
